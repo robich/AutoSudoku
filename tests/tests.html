@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>libPSC tests</title>
+
+    <link rel="stylesheet" href="qunit.css" />
+    <script src="qunit.js"></script>
+    <script src="../src/libPSC.js"></script>
+
+    <script>
+    test("Variable basics", function() {
+        var v = new Variable("x", [1, 2, 3, 4, 5, 6]);
+		v.updateValue(3);
+		v.removeFromLabel(5);
+		equal(v.getValue(), 3);
+		equal(v.getDomainSize(), 6);
+		equal(v.getLabelSize(), 5);
+		equal(v.getName(), "x");
+		
+		throws(function () {
+			v.updateValue(100);
+		}, BadValueException);
+		
+    });
+    </script>
+</head>
+<body>
+    <div id="qunit"></div>
+</body>
+</html>

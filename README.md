@@ -1,2 +1,2 @@
 # AutoSudoku
-A avascript sudoku solver using DFS + forward checking and DVO
+A javascript sudoku solver that uses DFS + forward checking and DVO
