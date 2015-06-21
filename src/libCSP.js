@@ -50,9 +50,16 @@ function UnknownOperator(message) {
  */
 function Variable (name, domain) {
 	this.name = name;
-	this.domain = deepCopyArray(domain);
-	this.value = null;
+	this.value = "none";
 	this.label = deepCopyArray(domain);
+	
+	if (domain == "integers") {
+		this.domain = domain;
+	} else {
+		this.domain = deepCopyArray(domain);
+	}
+	
+	
 	
 	this.toString = function() {
 		return "var : " + this.name + '\t value: ' + this.value + '\t domain = {' + this.domain + '} ';
@@ -64,6 +71,13 @@ function Variable (name, domain) {
 			this.label.splice(index, 1);
 		}
 	}
+	this.removeFromDomain = function(value) {
+		var index = this.domain.indexOf(value);
+		if (index > -1) {
+			this.domain.splice(index, 1);
+		}
+	}
+	
 	
 	this.getValue = function() {
 		return this.value;
@@ -71,8 +85,9 @@ function Variable (name, domain) {
 	
 	this.updateValue = function(value) {
 		var index = this.label.indexOf(value);
-		if (index == -1) {
-			throw new BadValueException("trying to set a value outside of the variable's domain.");
+		if (index == -1 && this.domain != "integers" && value != "none") {
+			throw new BadValueException("Trying to set a value outside of the variable's domain: " + value +
+				" is not in " + this.domain);
 		}
 		
 		this.value = value;
@@ -89,6 +104,11 @@ function Variable (name, domain) {
 	this.getLabelSize = function() {
 		return this.label.length;
 	}
+	
+	this.getDomain = function() {
+		return this.domain;
+	}
+	
 }
 
 /**
@@ -120,7 +140,7 @@ function Constraint (vars) {
  * 		an integer
  */
 function UnaryConstraint (refVar, op, ref) {
-	UnaryConstraint.superclass.call(this, refVar.getName());
+	UnaryConstraint.superclass.call(this, [refVar.getName()]);
     this.ref = ref;
     this.op = op;
     this.refVar = refVar;
@@ -130,11 +150,9 @@ function UnaryConstraint (refVar, op, ref) {
     }
     
     this.isValid = function(variable, value) {
-    	if (typeof variable == 'undefined' || typeof value == 'undefined') {
-    		throw new UndefinedArgumentException();
-    	}
     	
     	NBCONSTRAINTS++;
+    	
     	var savedValue = variable.getValue();
     	variable.updateValue(value);
     	
@@ -145,13 +163,13 @@ function UnaryConstraint (refVar, op, ref) {
             	valid = this.refVar.getValue() < this.ref;
             	break;
         	case "<=":
-        	    valid = this.refVar.valeur <= this.ref
+        	    valid = this.refVar.getValue() <= this.ref
         	    break;
         	case "==":
-        	    valid = this.refVar.valeur == this.ref;
+        	    valid = this.refVar.getValue() == this.ref;
         	    break;
         	case "!=":
-        	    valid = this.refVar.valeur != this.ref;
+        	    valid = this.refVar.getValue() != this.ref;
         	    break;
         	default:
         		throw new UnknownOperator(this.op);
@@ -169,4 +187,96 @@ function UnaryConstraint (refVar, op, ref) {
     
     
 } extend(UnaryConstraint, Constraint);
+
+/**
+ * refVar1:
+ * 		a Variable
+ * refVar2:
+ * 		a variable
+ * op:
+ * 		an operato, e.g. "!="
+ */
+function BinaryConstraint(refVar1, op, refVar2) {
+	BinaryConstraint.superclass.call(this, [refVar1.getName(), refVar2.getName()]);
+	this.refVar1 = refVar1;
+	this.op = op;
+	this.refVar2 = refVar2;
+	
+	this.dimension = function() {
+		return 2;
+	}
+	
+	this.isValid = function(variable, value) {
+		NBCONSTRAINTS++;
+		
+		var savedValue = variable.getValue();
+		variable.updateValue(value);
+		
+		var valid = false;
+		
+		switch(this.op) {
+		    case "!=":
+		        valid = this.refVar1.getValue() != this.refVar2.getValue();
+		        break;
+		    case "==":
+		        valid = this.refVar1.getValue() == this.refVar2.getValue();
+		        break;
+		    case "<":
+		        valid = this.refVar1.getValue() < this.refVar2.getValue();
+		        break;
+		    case "NAND":
+		        valid = ! (this.refVar1.getValue() && this.refVar2.getValue());
+		        break;
+		    case "->": // p => q is the same as not p OR q
+		        valid = !this.refVar1.getValue() || this.refVar2.getValue();
+		        break;
+		    default:
+		        throw new UnknownOperator(this.op);
+		}
+		
+		variable.updateValue(savedValue);
+		
+		return valid;
+		
+	}
+	
+	this.isPossible = function(variable) {
+		if (variable.getDomain.length == 0) {
+			return false;
+		}
+		
+		variable.getDomain().forEach(function(d) {
+			    if (this.isValid(variable, d)) {
+			    	return true;
+			    }
+			    
+			}, this);
+		
+		return false;
+	}
+	
+	this.revise = function() {
+		var modified = false;
+        
+        [ [this.refVar1, this.refVar2], [this.refVar2, this.refVar1] ].forEach(function(pair) {
+        	deepCopyArray(pair[0].domain).forEach(function(x) {
+        		    pair[0].updateValue(x);
+        		    if (!this.isPossible(pair[1])) {
+        		    	pair[0].removeFromDomain(x);
+        		    	modified = true;
+        		    }
+        		    
+        		}, this);
+        	pair[0].updateValue("none");
+        }, this);
+		
+		return modified;
+		
+	}
+	
+	this.toString = function() {
+		return "refVar1: (" + this.refVar1 + ")\t refVar2: (" + this.refVar2 + ")\t operator: " + this.op;
+	}
+} extend(BinaryConstraint, Constraint);
+
 
