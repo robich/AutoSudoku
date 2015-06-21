@@ -999,7 +999,7 @@ Test.prototype = {
 		// It's still called here for backwards compatibility handling
 		QUnit.reset();
 
-		config.current = undefined;
+		//config.current = undefined;
 	},
 
 	queue: function() {

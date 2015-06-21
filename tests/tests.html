@@ -2,14 +2,14 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>libPSC tests</title>
+    <title>libCSP tests</title>
 
     <link rel="stylesheet" href="qunit.css" />
     <script src="qunit.js"></script>
-    <script src="../src/libPSC.js"></script>
+    <script src="../src/libCSP.js"></script>
 
     <script>
-    test("Variable basics", function() {
+    test("Variable", function() {
         var v = new Variable("x", [1, 2, 3, 4, 5, 6]);
 		v.updateValue(3);
 		v.removeFromLabel(5);
@@ -20,8 +20,34 @@
 		
 		throws(function () {
 			v.updateValue(100);
-		}, BadValueException);
+		}, BadValueException);	
+    });
+	
+	test("Constraint", function() {
+		var v1 = new Variable("v1", [1, 2, 3, 4, 5, 6]);
+		var v2 = new Variable("v2", [1, 2]);
+        var c = new Constraint([v1, v2]);
 		
+		equal(c.dimension(), 0);
+		equal(c.isValid(v1, 3), false);
+    });
+	
+	test("Unary constraints", function() {
+		var v1 = new Variable("v1", [3, 4, 5, 6]);
+		v1.updateValue(5);
+        var uc = new UnaryConstraint(v1, "!=", 5);
+        var uc2 = new UnaryConstraint(v1, "<", 20);
+        var uc3 = new UnaryConstraint(v1, "<", 2);
+        var ucBad = new UnaryConstraint(v1, "?", 5);
+		
+		equal(uc.dimension(), 1);
+        
+        throws(function () {
+            ucBad.isValid(v1, 3);
+        }, UnknownOperator);
+        
+        equal(uc2.isValid(v1, 5), true);
+        equal(uc3.isValid(v1, 3), false);
     });
     </script>
 </head>
