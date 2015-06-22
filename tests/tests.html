@@ -77,7 +77,11 @@
 		
 		equal(cv1v2.isValid(v1, 4), true);
 		
+		equal(cv1v2.refVar2.getDomainSize(), 6);
 		cv1v2.revise();
+		// New domain must be 3, 4, 5, 6
+		equal(cv1v2.refVar2.getDomainSize(), 4);
+		
     });
     </script>
 </head>

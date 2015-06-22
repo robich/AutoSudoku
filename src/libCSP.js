@@ -51,13 +51,8 @@ function UnknownOperator(message) {
 function Variable (name, domain) {
 	this.name = name;
 	this.value = "none";
+	this.domain = deepCopyArray(domain);
 	this.label = deepCopyArray(domain);
-	
-	if (domain == "integers") {
-		this.domain = domain;
-	} else {
-		this.domain = deepCopyArray(domain);
-	}
 	
 	
 	
@@ -194,7 +189,7 @@ function UnaryConstraint (refVar, op, ref) {
  * refVar2:
  * 		a variable
  * op:
- * 		an operato, e.g. "!="
+ * 		an operator, e.g. "!="
  */
 function BinaryConstraint(refVar1, op, refVar2) {
 	BinaryConstraint.superclass.call(this, [refVar1.getName(), refVar2.getName()]);
@@ -241,25 +236,34 @@ function BinaryConstraint(refVar1, op, refVar2) {
 	}
 	
 	this.isPossible = function(variable) {
-		if (variable.getDomain.length == 0) {
+		
+		if (variable.getDomain().length == 0) {
 			return false;
 		}
 		
+		var possible = false;
+		
 		variable.getDomain().forEach(function(d) {
 			    if (this.isValid(variable, d)) {
-			    	return true;
+			    	possible = true;
 			    }
 			    
 			}, this);
 		
-		return false;
+		return possible;
 	}
 	
+	/**
+	 * Remove from refVar1 and refVar2's domains all impossible values.
+	 * 
+	 * @return true iff a modification on the domains occured
+	 */
 	this.revise = function() {
+		
 		var modified = false;
         
         [ [this.refVar1, this.refVar2], [this.refVar2, this.refVar1] ].forEach(function(pair) {
-        	deepCopyArray(pair[0].domain).forEach(function(x) {
+        	deepCopyArray(pair[0].getDomain()).forEach(function(x) {
         		    pair[0].updateValue(x);
         		    if (!this.isPossible(pair[1])) {
         		    	pair[0].removeFromDomain(x);
@@ -277,6 +281,7 @@ function BinaryConstraint(refVar1, op, refVar2) {
 	this.toString = function() {
 		return "refVar1: (" + this.refVar1 + ")\t refVar2: (" + this.refVar2 + ")\t operator: " + this.op;
 	}
+	
 } extend(BinaryConstraint, Constraint);
 
 
