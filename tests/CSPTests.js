@@ -1,14 +1,40 @@
-test("Variable2", function() {
-        var v = new Variable("x", [1, 2, 3, 4, 5, 6]);
-		v.updateValue(3);
-		v.removeFromLabel(5);
+test("Variables", function() {
+	    
+        var vars = new Variables();
+        var x = new Variable("x", [1, 2, 3, 4, 5, 6]);
+		var y = new Variable("y", [4, 5, 6, 7]);
+		vars.addVariable(x);
+		vars.addVariable(y);
 		
-		equal(v.getValue(), 3);
-		equal(v.getDomainSize(), 6);
-		equal(v.getLabelSize(), 5);
-		equal(v.getName(), "x");
+		equal(vars.getVariable("x"), x);
+		equal(vars.getVariable("y"), y);
 		
-		throws(function () {
-			v.updateValue(100);
-		}, BadValueException);	
+		vars = new Variables();
+		
+		equal(vars.getVariable("y"), "none");
+		
+		vars.addVariables([x, y]);
+		
+		equal(vars.getVariable("x"), x);
+		equal(vars.getVariable("y"), y);
+		
+});
+
+test("Variable Ordering", function() {
+	    
+        var vars = new Variables();
+        
+        var x = new Variable("x", [1, 2, 3, 4, 5, 6]);
+		var y = new Variable("y", [4, 5, 6, 7]);
+		
+		vars.addVariables([x, y]);
+		
+		equal(vars.getAllVariables()[0], x);
+		
+		variableOrdering();
+		
+		// y's label is smaller than the one of x.
+		equal(vars.getAllVariables()[0], y);
+		
+		
 });

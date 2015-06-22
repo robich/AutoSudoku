@@ -31,3 +31,48 @@ var ITERATIONS = 0;
  * List of all the solutions.
  */
 var SOLUTIONS = [];
+
+/**
+ * Constraint Satisfaction Problem methods.
+ */
+
+/**
+ * Sorts variables in ascending order.
+ */
+function variableOrdering() {
+	VARIABLES.sort(function(a, b){
+		return a.getLabelSize() > b.getLabelSize();
+	});
+}
+
+function Variables () {
+	
+	VARIABLES = [];
+	
+	this.getVariable = function(name) {
+		var output = "none";
+		
+		VARIABLES.forEach(function(v){
+			if (v.getName() == name) {
+				output = v;
+			}
+			
+		});
+		
+		return output;
+	}
+	
+	this.addVariable = function(variable) {
+		VARIABLES[VARIABLES.length] = variable;
+	}
+	
+	this.addVariables = function(varList) {
+		VARIABLES = VARIABLES.concat(varList);
+	}
+	
+	this.getAllVariables = function() {
+		return VARIABLES;
+	}
+	
+}
+
