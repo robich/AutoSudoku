@@ -104,6 +104,11 @@ function Variable (name, domain) {
 		return this.domain;
 	}
 	
+	this.getLabel = function() {
+		return this.label;
+	}
+	
+	
 }
 
 /**
@@ -277,6 +282,33 @@ function BinaryConstraint(refVar1, op, refVar2) {
 		return modified;
 		
 	}
+	
+	/**
+	 * @return true iff the label of refVar1 or refVar2 stays non empty
+	 */
+	this.propagate = function(variable) {
+		
+		var var2 = this.refVar1;
+		
+		if (variable == this.refVar1) {
+			var2 = this.refVar2;
+		}
+		
+		deepCopyArray(var2.getLabel()).forEach(function(lab) {
+			
+			    // Constraint satisfied?
+			    if (!this.isValid(var2, lab)) {
+			    	var2.removeFromLabel(lab);
+			    }
+			    
+			}, this
+		);
+		
+		return var2.getLabelSize() > 0;
+		
+		
+	}
+	
 	
 	this.toString = function() {
 		return "refVar1: (" + this.refVar1 + ")\t refVar2: (" + this.refVar2 + ")\t operator: " + this.op;
