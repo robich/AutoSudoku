@@ -66,7 +66,7 @@ function Variable (name, domain) {
 	
 	
 	this.toString = function() {
-		return "var : " + this.name + '\t value: ' + this.value + '\t domain = {' + this.domain + '} ';
+		return "var : " + this.name + '\t value: ' + this.value + '\t domain = {' + this.domain + '} \t label = {' + this.label + '}';
 	}
 	
 	this.removeFromLabel = function(value) {
@@ -125,6 +125,7 @@ function Variable (name, domain) {
  * 		a list of Variables
  */
 function Constraint (vars) {
+	
 	this.vars = vars;
 	
 	this.getVars = function() {

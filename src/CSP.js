@@ -94,15 +94,14 @@ function consistencyWithPreviousVars(k) {
     var consistent = true;
 	
     CONSTRAINTS.forEach(function(c) {
-    	
     	    // if k's name is in c 
     	    if (c.getVars().indexOf(VARIABLES[k].getName()) > -1 ) {
     	    	for (var i = 0; i < k; i++) {
-    	    		
     	    		// if i's name is also in c
     	    		if (c.getVars().indexOf(VARIABLES[i].getName()) > -1 ) {
     	    			if (!c.isValid(VARIABLES[k], VARIABLES[k].getValue())) {
     	    				consistent = false;
+    	    				break;
     	    			}
     	    		}
     	    	}
@@ -112,6 +111,35 @@ function consistencyWithPreviousVars(k) {
 	
     return consistent;
 }
+
+/**
+ * Tries to lower label of other vars in any constraint with var whose index is k using BinaryConstraint.propagate().
+ * 
+ * @return true iff all constrainst are still satisfied
+ */
+function propagateToNextVars(k) {
+	var satisfied = true;
+	
+	CONSTRAINTS.forEach(function(c) {
+    	    // if k's name is in c 
+    	    if (c.getVars().indexOf(VARIABLES[k].getName()) > -1 ) {
+    	    	for (var i = k+1; i < VARIABLES.length; i++) {
+    	    		// if i's name is also in c
+    	    		if (c.getVars().indexOf(VARIABLES[i].getName()) > -1 ) {
+    	    			
+    	    		    if (!c.propagate(VARIABLES[k])) {
+    	    		    	return false;
+    	    		    }
+    	    		    
+    	    		}
+    	    	}
+    	    }
+    	}, this
+    );
+	
+    return satisfied;
+}
+
 
 
 
@@ -144,6 +172,11 @@ function Variables () {
 	this.getAllVariables = function() {
 		return VARIABLES;
 	}
+	
+	this.getNbVariables = function() {
+		return VARIABLES.length;
+	}
+	
 	
 }
 

@@ -83,12 +83,26 @@ test("consistencyWithPreviousVars", function() {
 	    
         var vars = new Variables();
         
-        var x = new Variable("x", [1, 2, 3, 4, 5, 6]);
-		var y = new Variable("y", [4, 5, 6, 7]);
+        var x = new Variable("x", [1, 2, 3, 4, 5, 6, 12]);
+		var y = new Variable("y", [12]);
 		var z = new Variable("z", [16, 17, 18, 19, 20, 21]);
 		
-		// todo
-		equal(1, 1);
+		x.updateValue(4);
+		y.updateValue(12);
+		z.updateValue(16);
 		
+		vars.addVariables([x, y, z]);
 		
+		var uc = new BinaryConstraint(z, "<", x);
+		var uc1 = new BinaryConstraint(x, "==", y);
+		
+		var constraints = new Constraints();
+		constraints.addConstraint(uc);
+		constraints.addConstraint(uc1);
+		
+		equal(consistencyWithPreviousVars(0), true);
+		equal(consistencyWithPreviousVars(1), false);
+		equal(consistencyWithPreviousVars(2), false);
+		
+		propagateToNextVars(2);
 });
