@@ -40,6 +40,15 @@ function UnknownOperator(message) {
 	
 }
 
+function OutOfBoundsException(message) {
+	this.message = message;
+	this.toString = function() {
+		return "Out of bounds: " + message;
+	}
+	
+}
+
+
 
 
 /**
@@ -117,6 +126,10 @@ function Variable (name, domain) {
  */
 function Constraint (vars) {
 	this.vars = vars;
+	
+	this.getVars = function() {
+		return this.vars;
+	}
 	
 	this.dimension = function() {
 		return 0;

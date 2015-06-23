@@ -10,7 +10,7 @@ test("Variable", function() {
 		
 		throws(function () {
 			v.updateValue(100);
-		}, BadValueException);	
+		}, BadValueException);
 });
 	
 test("Constraint", function() {
