@@ -141,6 +141,41 @@ function propagateToNextVars(k) {
 }
 
 
+function displaySolution(solution) {
+	return "Solution found in " + ITERATIONS + " steps with " + NBCONSTRAINTS + " verified constraints.\n" +
+	        "SOLUTION = " + solution;
+}
+
+function displayNbIterations(k) {
+	return "Iterations = " + ITERATIONS + ", depth = " + k + ", " + NBCONSTRAINTS + " verified constraints";
+}
+
+/**
+ * @return labels (in a dictionnary) of the variable of indexed >= k
+ */
+function getLabels(k) {
+	var labels = {};
+	
+	for (var i = k; i < VARIABLES.length; i++) {
+		labels[VARIABLES[i]] = deepCopyArray(VARIABLES[i].getLabel());
+	}
+	
+	return labels;
+	
+	
+}
+
+function updateLabels(labels) {
+	VARIABLES.forEach(function(v){
+		if (labels.indexOf(v.getName()) > -1 ) {
+			v.setLabel(deepCopyArray(labels[v.getName()]));
+		}
+		
+	});
+}
+
+
+
 
 
 

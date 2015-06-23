@@ -109,6 +109,11 @@ function Variable (name, domain) {
 		return this.label.length;
 	}
 	
+	this.setLabel = function(lab) {
+		this.label = lab;
+	}
+	
+	
 	this.getDomain = function() {
 		return this.domain;
 	}
