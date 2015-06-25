@@ -8,9 +8,6 @@ test("Variable", function() {
 		equal(v.getLabelSize(), 5);
 		equal(v.getName(), "x");
 		
-		throws(function () {
-			v.updateValue(100);
-		}, BadValueException);
 });
 	
 test("Constraint", function() {

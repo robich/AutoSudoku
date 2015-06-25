@@ -75,6 +75,7 @@ function Variable (name, domain) {
 			this.label.splice(index, 1);
 		}
 	}
+	
 	this.removeFromDomain = function(value) {
 		var index = this.domain.indexOf(value);
 		if (index > -1) {
@@ -82,16 +83,21 @@ function Variable (name, domain) {
 		}
 	}
 	
+	this.initLabel = function() {
+	    this.label = deepCopyArray(this.domain);
+	}
+	
+	
 	
 	this.getValue = function() {
 		return this.value;
 	}
 	
 	this.updateValue = function(value) {
-		var index = this.label.indexOf(value);
+		var index = this.domain.indexOf(value);
 		if (index == -1 && this.domain != "integers" && value != "none") {
-			throw new BadValueException("Trying to set a value outside of the variable's domain: " + value +
-				" is not in " + this.domain);
+			console.warn("Warning: Trying to set a value outside of the variable's domain: value '" + value +
+				"' is not in " + this.domain);
 		}
 		
 		this.value = value;
@@ -330,7 +336,7 @@ function BinaryConstraint(refVar1, op, refVar2) {
 	
 	
 	this.toString = function() {
-		return "refVar1: (" + this.refVar1 + ")\t refVar2: (" + this.refVar2 + ")\t operator: " + this.op;
+		return "Binary Constraint: " + this.refVar1.getName() + ' ' + this.op + ' ' + this.refVar2.getName();
 	}
 	
 } extend(BinaryConstraint, Constraint);

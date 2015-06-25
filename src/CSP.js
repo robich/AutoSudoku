@@ -20,7 +20,7 @@ var CONSTRAINTS = [];
 /**
  * Returned value when a failure occurs.
  */
-var ECHEC='echec';
+var ECHEC = 'echec';
 
 /**
  * Counts the number of iterations of the algorithm.
@@ -41,7 +41,7 @@ var SOLUTIONS = [];
  */
 function variableOrdering() {
 	VARIABLES.sort(function(a, b){
-		return a.getLabelSize() > b.getLabelSize();
+		return a.getDomainSize() > b.getDomainSize();
 	});
 }
 
@@ -142,12 +142,12 @@ function propagateToNextVars(k) {
 
 
 function displaySolution(solution) {
-	return "Solution found in " + ITERATIONS + " steps with " + NBCONSTRAINTS + " verified constraints.\n" +
-	        "SOLUTION = " + solution;
+	console.log("Solution found in " + ITERATIONS + " steps with " + NBCONSTRAINTS + " verified constraints.\n" +
+	        "SOLUTION = " + solution);
 }
 
 function displayNbIterations(k) {
-	return "Iterations = " + ITERATIONS + ", depth = " + k + ", " + NBCONSTRAINTS + " verified constraints";
+	console.log("Iterations = " + ITERATIONS + ", depth = " + k + ", " + NBCONSTRAINTS + " verified constraints");
 }
 
 /**
@@ -167,16 +167,12 @@ function getLabels(k) {
 
 function updateLabels(labels) {
 	VARIABLES.forEach(function(v){
-		if (labels.indexOf(v.getName()) > -1 ) {
+		if (v.getName() in labels) {
 			v.setLabel(deepCopyArray(labels[v.getName()]));
 		}
 		
 	});
 }
-
-
-
-
 
 
 function Variables () {
@@ -212,6 +208,36 @@ function Variables () {
 		return VARIABLES.length;
 	}
 	
+	/**
+	 * Remove from the domain all values that violate unary constraints.
+	 */
+	this.nodesConsistency = function() {
+		CONSTRAINTS.forEach(function(c){
+			
+		    // We want c to be unary.
+			if (c.dimension() == 1) {
+				deepCopyArray(c.refVar.domain).forEach(function(d) {
+					if (!c.isValid(c.refVar, d)) {
+						c.refVar.removeFromDomain(d);
+					}
+					
+				}, this);
+				
+			}
+			
+		}, this);
+	}
+	
+	this.toString = function() {
+		var s =  "Vars:\n";
+		VARIABLES.forEach(function(v){
+			s += "\t" + v.toString() + "\n";
+		});
+		
+		return s;
+	}
+	
+	
 	
 }
 
@@ -222,6 +248,11 @@ function Constraints () {
     this.addConstraint = function(c) {
     	CONSTRAINTS[CONSTRAINTS.length] = c;
     }
+    
+    this.addConstraints = function(constraintsList) {
+    	CONSTRAINTS = CONSTRAINTS.concat(constraintsList);
+    }
+    
     
     this.getNbConstraints = function() {
     	return CONSTRAINTS.length;
@@ -254,7 +285,7 @@ function Constraints () {
     	var i = 0;
     	CONSTRAINTS.forEach(function(c){
     		i++;
-    		s += "\t" + i + ". " + c;
+    		s += "\t" + i + ". " + c + "\n";
     	});
     	
     	return s;
@@ -263,5 +294,72 @@ function Constraints () {
     
     
 }
+
+/**
+ * Forward checking algorithm + Dynamic Variable Ordering.
+ * 
+ * @param k depth of search, starts at 0
+ * @param allSolutions boolean value that decides if we keep all possible solutions
+ * @parem init boolean value deciding if we init global values ITERATIONS, SOLUTIONS
+ */
+function forwardChecking(k, allSolutions, init) {
+	
+	if (init) {
+		ITERATIONS = 0;
+		SOLUTIONS = [];
+		NBCONSTRAINTS = 0;
+		
+		VARIABLES.forEach(function(v){
+			v.initLabel();
+		});
+	}
+	
+	ITERATIONS++;
+	
+	displayNbIterations(k);
+	
+	if (k >= VARIABLES.length) {
+		var solution = {};
+		
+		VARIABLES.forEach(function(v){
+			solution[v.getName()] = v.value;
+		}, this);
+		
+		displaySolution(solution);
+		SOLUTIONS.concat(solution);
+		
+		if (!allSolutions) {
+			return SOLUTIONS;
+		}
+		
+	} else {
+		
+		dvo(k);
+		
+		var variable = VARIABLES[k];
+		
+		var oldLabels = getLabels(k);
+		
+		deepCopyArray(variable.getLabel()).forEach(function(l) {
+			    variable.updateValue(l);
+			    variable.label = [l];
+			    
+			    if (propagateToNextVars(k)) {
+			    	var rest = forwardChecking(k+1, allSolutions, false);
+			    	if (rest != ECHEC) {
+			    		return rest;
+			    	}
+			    	
+			    }
+			    
+			    // revert changes on labels before trying next value.
+			    updateLabels(oldLabels);
+		    }
+		);
+	}
+	
+	return ECHEC;
+}
+
 
 
