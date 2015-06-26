@@ -147,7 +147,7 @@ test("Forward checking", function() {
         	&& array[4].getName() == "b");
         
         // Test forward checking.
-        /*var sol = forwardChecking(0, false, true);
-        alert(sol);*/
+        var sol = forwardChecking(0, false, true);
+        alert(sol);
 
 });

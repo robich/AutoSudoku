@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>AutoSudoku</title>
+	</head>
+	<body>
+		<div id="AutoSudoku">
+		</div>
+	</body>
+	<script type="text/javascript">
+		var div = document.getElementById("AutoSudoku");
+		
+		var grid = "<table>";
+		for (var i = 0; i < 9; i++) {
+			grid += "<tr>"
+			for (var j = 0; j < 9; j++) {
+				var cellId = i + "" + j;
+				grid += "<td id='" + cellId + "'><input type='text' /></td>";
+			}
+			grid += "</tr>";
+		}
+		grid += "</table>";
+		
+		div.innerHTML = grid;
+	</script>
+</html>

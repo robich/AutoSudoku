@@ -79,7 +79,9 @@ function dvo(k) {
 	var indexMin = getIndexWithMinLabelSize(k);
     if (indexMin != k) {
     	// swap variables k and indexMin.
-    	VARIABLES[k], VARIABLES[indexMin] = VARIABLES[indexMin], VARIABLES[k];
+    	var tmp = VARIABLES[k];
+    	VARIABLES[k] = VARIABLES[indexMin];
+    	VARIABLES[indexMin] = tmp;
     }
 }
 
@@ -121,14 +123,14 @@ function propagateToNextVars(k) {
 	var satisfied = true;
 	
 	CONSTRAINTS.forEach(function(c) {
-    	    // if k's name is in c 
+    	    // if k's name is in c
     	    if (c.getVars().indexOf(VARIABLES[k].getName()) > -1 ) {
     	    	for (var i = k+1; i < VARIABLES.length; i++) {
     	    		// if i's name is also in c
     	    		if (c.getVars().indexOf(VARIABLES[i].getName()) > -1 ) {
     	    			
     	    		    if (!c.propagate(VARIABLES[k])) {
-    	    		    	return false;
+    	    		    	satisfied = false;
     	    		    }
     	    		    
     	    		}
@@ -319,6 +321,7 @@ function forwardChecking(k, allSolutions, init) {
 	displayNbIterations(k);
 	
 	if (k >= VARIABLES.length) {
+		alert("solution found!");
 		var solution = {};
 		
 		VARIABLES.forEach(function(v){
@@ -340,22 +343,22 @@ function forwardChecking(k, allSolutions, init) {
 		
 		var oldLabels = getLabels(k);
 		
-		deepCopyArray(variable.getLabel()).forEach(function(l) {
-			    variable.updateValue(l);
-			    variable.label = [l];
-			    
-			    if (propagateToNextVars(k)) {
-			    	var rest = forwardChecking(k+1, allSolutions, false);
-			    	if (rest != ECHEC) {
-			    		return rest;
-			    	}
-			    	
-			    }
-			    
-			    // revert changes on labels before trying next value.
-			    updateLabels(oldLabels);
-		    }
-		);
+		var labelSize = variable.getLabelSize();
+		
+		for (var i = 0; i < labelSize; i++) {
+			var value = variable.label[i];
+			variable.updateValue(value);
+			variable.label = [value];
+			if (propagateToNextVars(k)) {
+    	    	var rest = forwardChecking(k+1, allSolutions, false);
+    	    	if (rest != ECHEC) {
+    	    		alert("pas echec: " + rest);
+    	    		return rest;
+    	    	}
+			}
+			
+			updateLabels(oldLabels);
+		}
 	}
 	
 	return ECHEC;

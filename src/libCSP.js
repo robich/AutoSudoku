@@ -232,6 +232,7 @@ function BinaryConstraint(refVar1, op, refVar2) {
 	}
 	
 	this.isValid = function(variable, value) {
+		
 		NBCONSTRAINTS++;
 		
 		var savedValue = variable.getValue();
