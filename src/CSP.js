@@ -33,6 +33,19 @@ var ITERATIONS = 0;
 var SOLUTIONS = [];
 
 /**
+ * Helper methods.
+ */
+	
+function getStringFromDictionnary(dictionnary) {
+	var s = "";
+	for (var key in dictionnary) {
+		s += key + "=" + dictionnary[key] + " ";
+	}
+	return s;
+}
+
+
+/**
  * Constraint Satisfaction Problem methods.
  */
 
@@ -145,7 +158,7 @@ function propagateToNextVars(k) {
 
 function displaySolution(solution) {
 	console.log("Solution found in " + ITERATIONS + " steps with " + NBCONSTRAINTS + " verified constraints.\n" +
-	        "SOLUTION = " + solution);
+	        "SOLUTION = " + getStringFromDictionnary(solution));
 }
 
 function displayNbIterations(k) {
@@ -321,7 +334,6 @@ function forwardChecking(k, allSolutions, init) {
 	displayNbIterations(k);
 	
 	if (k >= VARIABLES.length) {
-		alert("solution found!");
 		var solution = {};
 		
 		VARIABLES.forEach(function(v){
@@ -352,7 +364,6 @@ function forwardChecking(k, allSolutions, init) {
 			if (propagateToNextVars(k)) {
     	    	var rest = forwardChecking(k+1, allSolutions, false);
     	    	if (rest != ECHEC) {
-    	    		alert("pas echec: " + rest);
     	    		return rest;
     	    	}
 			}
