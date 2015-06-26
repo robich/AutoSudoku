@@ -197,6 +197,63 @@ function Grid() {
 		return line;
 	}
 	
+	this.getVariable = function(posX, posY) {
+		return GRID[getPosSubGrid(posX)][getPosSubGrid(posY)].subGrid[getPosInSubGrid(posX)][getPosInSubGrid(posY)];
+	}
+	
+	/**
+	 * Generates all constraints on lines.
+	 */
+	this.generateLineConstraints = function() {
+		
+		for (var i = 0; i < NBELEM; i++) {
+			for (var j = 0; j < NBELEM; j++) {
+				for (var k = j+1; k < NBELEM; k++) {
+					var v1 = this.getVariable(j, i);
+					var v2 = this.getVariable(k, i);
+					var c = new BinaryConstraint(v1, "!=", v2);
+					gConstraints.addConstraint(c);
+				}
+				
+			}
+			
+		}
+		
+	}
+	
+	/**
+	 * generates all column constraints.
+	 */
+	this.generateColumnConstraints = function() {
+		
+		for (var i = 0; i < NBELEM; i++) {
+			for (var j = 0; j < NBELEM; j++) {
+				for (var k = j+1; k < NBELEM; k++) {
+					var v1 = this.getVariable(i, j);
+					var v2 = this.getVariable(i, k);
+					var c = new BinaryConstraint(v1, "!=", v2);
+					gConstraints.addConstraint(c);
+				}
+				
+			}
+			
+		}
+	}
+	
+	this.generateSubGridConstraints = function() {
+		for (var i = 0; i < SUBGRID_SIZE; i++) {
+			for (var j = 0; j < SUBGRID_SIZE; j++) {
+				GRID[i][j].generateConstraints();
+			}
+			
+		}
+		
+	}
+	
+	
+	
+	
+	
 	
 }
 
