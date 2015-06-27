@@ -148,5 +148,5 @@ test("Forward checking", function() {
         
         // Test forward checking.
         var sol = forwardChecking(0, false, true);
-        equal(true, sol != ECHEC);
+        equal(true, sol != FAIL);
 });

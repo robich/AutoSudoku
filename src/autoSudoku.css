@@ -1,0 +1,32 @@
+#autoSudoku #game {
+    width: 600px;
+    display: block;
+    background-color: white;
+	margin-bottom: 20px;
+}
+
+#autoSudoku  #grid {
+    width: 378px;
+    height: 395px;
+
+    margin-left: 20px;
+    margin-top: 50px;
+
+    border: 3px solid #000;
+}
+
+#autoSudoku  .cell{
+    display: block;
+    float: left;
+    width: 40px;
+    height: 40px;
+}
+
+#autoSudoku input {
+    text-align: center;
+    font-size: 30px;
+    width:40px;
+    height:40px;
+    display:block;
+    border: 1px solid black;
+}

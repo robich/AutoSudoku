@@ -20,7 +20,7 @@ var CONSTRAINTS = [];
 /**
  * Returned value when a failure occurs.
  */
-var ECHEC = 'echec';
+var FAIL = 'fail';
 
 /**
  * Counts the number of iterations of the algorithm.
@@ -155,10 +155,13 @@ function propagateToNextVars(k) {
     return satisfied;
 }
 
+function getInfo() {
+	return "Solution found in " + ITERATIONS + " steps with " + NBCONSTRAINTS + " verified constraints";
+}
 
 function displaySolution(solution) {
-	console.log("Solution found in " + ITERATIONS + " steps with " + NBCONSTRAINTS + " verified constraints.\n" +
-	        "SOLUTION = " + getStringFromDictionnary(solution));
+	return getInfo() +
+	        ".\nSOLUTION = " + getStringFromDictionnary(solution);
 }
 
 function displayNbIterations(k) {
@@ -340,7 +343,7 @@ function forwardChecking(k, allSolutions, init) {
 			solution[v.getName()] = v.value;
 		}, this);
 		
-		displaySolution(solution);
+		console.log(displaySolution(solution));
 		SOLUTIONS.concat(solution);
 		
 		if (!allSolutions) {
@@ -363,7 +366,7 @@ function forwardChecking(k, allSolutions, init) {
 			variable.label = [value];
 			if (propagateToNextVars(k)) {
     	    	var rest = forwardChecking(k+1, allSolutions, false);
-    	    	if (rest != ECHEC) {
+    	    	if (rest != FAIL) {
     	    		return rest;
     	    	}
 			}
@@ -372,7 +375,7 @@ function forwardChecking(k, allSolutions, init) {
 		}
 	}
 	
-	return ECHEC;
+	return FAIL;
 }
 
 

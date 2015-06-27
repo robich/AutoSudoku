@@ -222,7 +222,7 @@ function Grid() {
 	}
 	
 	/**
-	 * generates all column constraints.
+	 * Generates all column constraints.
 	 */
 	this.generateColumnConstraints = function() {
 		
@@ -249,13 +249,32 @@ function Grid() {
 		}
 		
 	}
-	
-	
-	
-	
-	
-	
 }
+
+function run (g, p) {
+	console.log("New problem");
+	
+	PROBLEM = p;
+	
+	gVariables= new Variables();
+
+	gConstraints = new Constraints();
+	
+	g = new Grid();
+	
+	g.generateLineConstraints();
+	g.generateColumnConstraints();
+	g.generateSubGridConstraints();
+	
+	gVariables.nodesConsistency();
+	
+	gConstraints.arcsConsistency();
+	
+	variableOrdering();
+	
+	return forwardChecking(0, false, true);
+}
+
 
 
 

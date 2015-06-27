@@ -9,7 +9,7 @@ function extend(subclass, superclass) {
    subclass.superproto = superclass.prototype;
 }
 
-function deepCopyArray(array) {
+function deepCopyArray(array, dim) {
 	var output = [];
 	for (var i = 0; i < array.length; i++) {
 		output[i] = array[i];
