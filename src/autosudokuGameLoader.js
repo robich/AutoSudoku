@@ -48,6 +48,11 @@ var empty = [[X,X,X,X,X,X,X,X,X],
 	   [X,X,X,X,X,X,X,X,X],
 	   [X,X,X,X,X,X,X,X,X]];
 
+function update(i, j, value) {
+	currProb[i][j] = value;
+}
+
+
 function buildDivFrom(from, type) {
 	var divContent = "<div id='game'><table><caption>AutoSudoku</caption>" +
 	  "<colgroup><col><col><col>" + 
@@ -60,7 +65,7 @@ function buildDivFrom(from, type) {
 		
 		divContent += "<tr>"
 		for (var j = 0; j < 9; j++) {
-			divContent += "<td class='cell'><input type='text' maxlength='1' ";
+			divContent += "<td class='cell'><input type='text' maxlength='1' oninput='update(this.value, " + i + ", " + j + ");' ";
 			if (type == "array") {
 				if (from[i][j] != 0) {
 					divContent += "value='" + from[i][j] + "'";
