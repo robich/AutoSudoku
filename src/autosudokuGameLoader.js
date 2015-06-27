@@ -4,9 +4,6 @@
 		and libCSP.js, CSP.js, sudo.js must be loaded prior to this script.
 */
 function loadGame() {
-	alert("Loading game");
-
-
     var div = document.getElementById("autoSudoku");
     
     var baseProblem = [[X,X,X,X,X,5,X,7,X], 
