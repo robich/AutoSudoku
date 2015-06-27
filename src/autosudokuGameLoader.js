@@ -48,6 +48,7 @@ var empty = [[X,X,X,X,X,X,X,X,X],
 	   [X,X,X,X,X,X,X,X,X]];
 
 function buildDivFrom(from, type) {
+	alert("Building game");
 	var divContent = "<div id='game'><table>";
 	for (var i = 0; i < 9; i++) {
 		divContent += "<tr>"
