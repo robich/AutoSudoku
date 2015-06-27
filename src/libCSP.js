@@ -341,5 +341,3 @@ function BinaryConstraint(refVar1, op, refVar2) {
 	}
 	
 } extend(BinaryConstraint, Constraint);
-
-
