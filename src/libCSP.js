@@ -341,11 +341,3 @@ function BinaryConstraint(refVar1, op, refVar2) {
 	}
 	
 } extend(BinaryConstraint, Constraint);
-
-// test for wordpress
-function helloWorld() {
-	alert("Hello, world!");
-}
-
-
-
