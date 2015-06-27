@@ -4,9 +4,6 @@
 		and libCSP.js, CSP.js, sudo.js must be loaded prior to this script.
 */
 
-function uglyHack() {
-
-
 var div = document.getElementById("autoSudoku");
 
 var baseProblem = [[X,X,X,X,X,5,X,7,X], 
@@ -52,9 +49,15 @@ var empty = [[X,X,X,X,X,X,X,X,X],
 	   [X,X,X,X,X,X,X,X,X]];
 
 function buildDivFrom(from, type) {
-	alert("Building game");
-	var divContent = "<div id='game'><table>";
+	var divContent = "<div id='game'><table><caption>AutoSudoku</caption>" +
+	  "<colgroup><col><col><col>" + 
+	  "<colgroup><col><col><col>" + 
+	  "<colgroup><col><col><col>";
 	for (var i = 0; i < 9; i++) {
+		if (i % 3 == 0) {
+		    divContent += "<tbody>";
+		}
+		
 		divContent += "<tr>"
 		for (var j = 0; j < 9; j++) {
 			divContent += "<td class='cell'><input type='text' maxlength='1' ";
@@ -96,6 +99,6 @@ function computeSudoku() {
 
 // Init div.
 buildDivFrom(baseProblem, "array");
-}
+
 
     
