@@ -396,7 +396,7 @@ function getStringFromDictionnary(dictionnary) {
  */
 function variableOrdering() {
 	VARIABLES.sort(function(a, b){
-		return a.getDomainSize() > b.getDomainSize();
+		return (a.getDomainSize() > b.getDomainSize()) ? 1 : -1;
 	});
 }
 
