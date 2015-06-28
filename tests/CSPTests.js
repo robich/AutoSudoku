@@ -141,6 +141,7 @@ test("Forward checking", function() {
         // Test variable ordering.
         variableOrdering();
         var array = vars.getAllVariables();
+		//alert(array);
         equal(true, array[0].getName() == "a" && array[1].getName() == "c"
         	&& array[2].getName() == "d"
         	&& array[3].getName() == "e"
