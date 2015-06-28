@@ -1062,8 +1062,13 @@ function isMSIE() {
 }
 
 function buildDivFrom(from, type) {
-	var divContent = "<div id='game'><table>";
+	var divContent = "<div id='game'><table><caption>AutoSudoku</caption><colgroup><col><col><col>" +
+					  "<colgroup><col><col><col>" + 
+					  "<colgroup><col><col><col>";
 	for (var i = 0; i < 9; i++) {
+		if (i % 3 == 0) {
+			divContent += "<tbody>";
+		}
 		divContent += "<tr>"
 		for (var j = 0; j < 9; j++) {
 			divContent += "<td class='cell'><input type='text' maxlength='1' ";
