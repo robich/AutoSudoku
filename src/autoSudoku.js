@@ -206,7 +206,7 @@ function UnaryConstraint (refVar, op, ref) {
 	}
 	
 	this.toString = function() {
-		return "Constraint: " + this.refVar.getName() + ' ' + this.op + ' ' + this.ref;
+		return "\nConstraint: " + this.refVar.getName() + ' ' + this.op + ' ' + this.ref;
 	}
 	
 	
@@ -337,7 +337,7 @@ function BinaryConstraint(refVar1, op, refVar2) {
 	
 	
 	this.toString = function() {
-		return "Binary Constraint: " + this.refVar1.getName() + ' ' + this.op + ' ' + this.refVar2.getName();
+		return "\nBC: " + this.refVar1.getName() + ' ' + this.op + ' ' + this.refVar2.getName();
 	}
 	
 } extend(BinaryConstraint, Constraint);
@@ -590,8 +590,9 @@ function Variables () {
 	
 	this.toString = function() {
 		var s =  "Vars:\n";
+		var i = 1;
 		VARIABLES.forEach(function(v){
-			s += "\t" + v.toString() + "\n";
+			s += "\t" + i++ + " " +  v.toString() + "\n";
 		});
 		
 		return s;
@@ -633,7 +634,7 @@ function Constraints () {
 			
 		});
 		
-		if(redo) {
+		if (redo) {
 			this.arcsConsistency();
 		}
 		
@@ -990,7 +991,9 @@ function run (g, p) {
 	
 	gConstraints.arcsConsistency();
 	
-	variableOrdering();
+	/* For a reason I don't have the time to investigate, this causes chrome to fail (it cannot find a solution). */
+	//variableOrdering();
+	console.log(gVariables.toString());
 	
 	return forwardChecking(0, false, true);
 }
@@ -1013,7 +1016,7 @@ var baseProblem = [[X,X,X,X,X,5,X,7,X],
 	   [7,X,X,X,X,X,8,X,X],
 	   [3,X,X,5,X,X,X,X,X],
 	   [8,1,2,3,X,X,X,4,X],
-	   [X,7,X,2,X,X,X,X,X]];
+[X,7,X,2,X,X,X,X,X]];
 	   
 function bidimDeepCopy(array) {
 	var output = [[X,X,X,X,X,X,X,X,X], 
