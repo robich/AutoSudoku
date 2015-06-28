@@ -24,7 +24,7 @@ test("Grid", function() {
                [7,X,3,X,X,6,2,X,1],
                [4,X,X,X,X,X,X,X,5]];
     
-    run(grid, prob);
+    equal(true, run(grid, prob) != FAIL);
     
     equal(grid.getVariable(0, 0).getValue(), 9);
     equal(grid.getVariable(0, 1).getValue(), 4);
