@@ -1004,7 +1004,7 @@ function run (g, p) {
 var div = document.getElementById("autoSudoku");
 if (div == null) {
 	var msg = "Error: No div with id autoSudoku found.";
-	alert(msg);
+	console.log(msg);
 	throw new Error(msg);
 }
 
