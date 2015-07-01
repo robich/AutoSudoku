@@ -386,6 +386,41 @@ function getStringFromDictionnary(dictionnary) {
 	return s;
 }
 
+function bidimDeepCopy(array) {
+	var output = [[X,X,X,X,X,X,X,X,X], 
+	   [X,X,X,X,X,X,X,X,X],
+	   [X,X,X,X,X,X,X,X,X],
+	   [X,X,X,X,X,X,X,X,X],
+	   [X,X,X,X,X,X,X,X,X],
+	   [X,X,X,X,X,X,X,X,X],
+	   [X,X,X,X,X,X,X,X,X],
+	   [X,X,X,X,X,X,X,X,X],
+	   [X,X,X,X,X,X,X,X,X]];
+	   
+	for (var i = 0; i < array.length; i++) {
+		for (var j = 0; j < array[0].length; j++) {
+			output[i][j] = array[i][j];
+		}
+	}
+	
+	return output;
+}
+
+function getArrayFromHtml() {
+	var array = bidimDeepCopy(PROBLEM);
+	for (var i = 0; i < array.length; i++) {
+		for (var j = 0; j < array[0].length; j++) {
+			var v = document.getElementById(i + "" + j).value;
+			if (v.length == 1) {
+				array[i][j] = document.getElementById(i + "" + j).value;
+			} else {
+				array[i][j] = 0;
+			}
+		}
+	}
+	return array;
+}
+
 
 /**
  * Constraint Satisfaction Problem methods.
@@ -736,7 +771,7 @@ var DOMAIN = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 /**
  * The initial problem.
  */
-var PROBLEM = [[X,X,X,X,X,X,X,X,2], 
+var PROBLEM = [[X,X,X,X,X,X,X,X,X], 
 [X,X,X,X,X,X,X,X,X],
 [X,X,X,X,X,X,X,X,X],
 [X,X,X,X,X,X,X,X,X],
@@ -858,6 +893,7 @@ function SubGrid(posL, posC) {
 	
 }
 
+
 function Grid() {
 	
 	this.init = function() {
@@ -891,8 +927,6 @@ function Grid() {
 		}
 	}
 	
-	this.init();
-	
 	this.toString = function() {
 		var subGridCol = 0;
 		var subGridRow = 0;
@@ -916,6 +950,40 @@ function Grid() {
 		}
 		
 		return line;
+	}
+	
+	this.getArray = function() {
+		var array = bidimDeepCopy(PROBLEM);
+		
+		var subGridCol = 0;
+		var subGridRow = 0;
+		var m = 0;
+		var n = 0;
+		
+		for (var i = 0; i < NBELEM; i++) {
+			subGridCol = 0;
+			if (i > 0 && i % SUBGRID_SIZE == 0) {
+				subGridRow++;
+			}
+
+			for (var j = 0; j < NBELEM; j++) {
+				if (j > 0 && j % SUBGRID_SIZE == 0) {
+					subGridCol++;
+				}
+				
+				var value = GRID[getPosSubGrid(i)][getPosSubGrid(j)].getValue(getPosInSubGrid(i), getPosInSubGrid(j));
+				if (!isNaN(value)) {
+					array[i][j] = value;
+				} else {
+					array[i][j] = 0;
+				}
+				n++;
+			}
+			
+			m++;
+		}
+		
+		return array;
 	}
 	
 	this.getVariable = function(posX, posY) {
@@ -975,13 +1043,13 @@ function Grid() {
 function run (g, p) {
 	console.log("New problem");
 	
-	PROBLEM = p;
+	PROBLEM = bidimDeepCopy(p);
 	
-	gVariables= new Variables();
+	gVariables = new Variables();
 
 	gConstraints = new Constraints();
 	
-	g = new Grid();
+	g.init();
 	
 	g.generateLineConstraints();
 	g.generateColumnConstraints();
@@ -1018,26 +1086,6 @@ var baseProblem = [[X,X,X,X,X,5,X,7,X],
 	   [8,1,2,3,X,X,X,4,X],
 [X,7,X,2,X,X,X,X,X]];
 	   
-function bidimDeepCopy(array) {
-	var output = [[X,X,X,X,X,X,X,X,X], 
-	   [X,X,X,X,X,X,X,X,X],
-	   [X,X,X,X,X,X,X,X,X],
-	   [X,X,X,X,X,X,X,X,X],
-	   [X,X,X,X,X,X,X,X,X],
-	   [X,X,X,X,X,X,X,X,X],
-	   [X,X,X,X,X,X,X,X,X],
-	   [X,X,X,X,X,X,X,X,X],
-	   [X,X,X,X,X,X,X,X,X]];
-	   
-	for (var i = 0; i < array.length; i++) {
-		for (var j = 0; j < array[0].length; j++) {
-			output[i][j] = array[i][j];
-		}
-	}
-	
-	return output;
-}
-	   
 var currProb = bidimDeepCopy(baseProblem);
 
 var empty = [[X,X,X,X,X,X,X,X,X], 
@@ -1061,6 +1109,16 @@ function isMSIE() {
             return false;
 }
 
+function update(value, i, j) {
+	var v = parseInt(value);
+	if (v < 1 || v > 9) {
+		currProb[i][j] = 0;
+		document.getElementById(i + "" + j).value = "";
+	} else {
+		currProb[i][j] = v;
+	}
+}
+
 function buildDivFrom(from, type) {
 	var divContent = "<div id='game'><table><caption>AutoSudoku</caption><colgroup><col><col><col>" +
 					  "<colgroup><col><col><col>" + 
@@ -1071,13 +1129,17 @@ function buildDivFrom(from, type) {
 		}
 		divContent += "<tr>"
 		for (var j = 0; j < 9; j++) {
-			divContent += "<td class='cell'><input type='text' maxlength='1' ";
+			var cellId = i + "" + j;
+			divContent += "<td class='cell'><input id='" + cellId + "' type='text' maxlength='1' onchange='update(this.value, " + i + ", " + j + ");' ";
 			if (type == "array") {
 				if (from[i][j] != 0) {
 					divContent += "value='" + from[i][j] + "'";
 				}
 			} else if (type == "grid") {
-				divContent += "value='" + from.getVariable(i, j).getValue() + "'";
+				var v = from.getVariable(i, j);
+				if (!isNaN(v.getValue())) {
+					divContent += "value='" + v.getValue() + "'";
+				}
 			}
 			divContent += "/></td>";
 		}
@@ -1087,7 +1149,7 @@ function buildDivFrom(from, type) {
 	divContent += "<button onclick='computeSudoku();'>Compute sudoku</button>";
 	divContent += "<button onclick='buildDivFrom(empty, \"array\"); currProb = bidimDeepCopy(empty);'>reset</button>";
 	divContent += "<button onclick='buildDivFrom(baseProblem, \"array\"); currProb = bidimDeepCopy(baseProblem);'>use original problem</button>";
-	divContent += "<p id='error'></p>";
+	divContent += "<p id='info'></p>";
 	
 	div.innerHTML = divContent;
 	
@@ -1104,16 +1166,17 @@ function computeSudoku() {
 	var t0 = performance.now();
 	var grid = new Grid();
 	var res = run(grid, currProb);
+	currProb = grid.getArray();
 	var t1 = performance.now();
 	// Only keep 3 digits precision.
 	var elapsed = Math.floor((t1 - t0) * 1000) / 1000;
 	
+	buildDivFrom(grid, "grid");
 	if (res == FAIL) {
-		document.getElementById('error').innerHTML = "Cannot solve sudoku (" + elapsed + " milliseconds)";
+		document.getElementById('info').innerHTML = "Cannot solve sudoku - " + ITERATIONS + " steps, " + NBCONSTRAINTS + " verified constraints (" + elapsed + " milliseconds)";
 	} else {
-		buildDivFrom(grid, "grid");
-		div.innerHTML += "<p>" + getInfo() + " (" + elapsed + " milliseconds).</p>";
-	}						
+		document.getElementById('info').innerHTML = getInfo() + " (" + elapsed + " milliseconds).";
+	}
 }
 
 // Init div.
