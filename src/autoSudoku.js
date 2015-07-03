@@ -1185,10 +1185,13 @@ function computeSudoku() {
 	// Only keep 3 digits precision.
 	var elapsed = Math.floor((t1 - t0) * 1000) / 1000;
 	
-	buildDivFrom(grid, "grid");
 	if (res == FAIL) {
+		currProb = deepCopyArray(empty);
+		grid.init();
+		buildDivFrom(grid, "grid");
 		document.getElementById('info').innerHTML = "Cannot solve sudoku - " + ITERATIONS + " steps, " + NBCONSTRAINTS + " verified constraints (" + elapsed + " milliseconds)";
 	} else {
+		buildDivFrom(grid, "grid");
 		document.getElementById('info').innerHTML = getInfo() + " (" + elapsed + " milliseconds).";
 	}
 }
