@@ -741,20 +741,20 @@ function forwardChecking(k, allSolutions, init) {
 		var oldLabels = getLabels(k);
 		var labelSize = variable.getLabelSize();
 
-		deepCopyArray(variable.getLabel()).forEach(function(e){
-			variable.updateValue(e);
-			variable.label = [e];
-			
+		for (var i = 0; i < labelSize; i++) {
+			var value = variable.label[i];
+			variable.updateValue(value);
+			variable.label = [value];
 			if (propagateToNextVars(k)) {
 				var rest = forwardChecking(k+1, allSolutions, false);
 				if (rest != FAIL) {
 					retVal = rest;
+					break;
 				}
-				
 			}
 			
 			updateLabels(oldLabels);
-		});
+		}
 	}
 
 return retVal;
