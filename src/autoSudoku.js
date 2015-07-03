@@ -99,7 +99,6 @@ function Variable (name, domain) {
 			console.warn("Warning: Trying to set a value outside of the variable's domain: value '" + value +
 				"' is not in " + this.domain);
 		}
-		
 		this.value = value;
 	}
 	
@@ -550,14 +549,13 @@ function displayNbIterations(k) {
  */
 function getLabels(k) {
 	var labels = {};
+
+	VARIABLES.forEach(function(v, i){
+		labels[v.getName()] = deepCopyArray(v.label);
+	});
 	
-	for (var i = k; i < VARIABLES.length; i++) {
-		labels[VARIABLES[i]] = deepCopyArray(VARIABLES[i].getLabel());
-	}
-	
+
 	return labels;
-	
-	
 }
 
 function updateLabels(labels) {
@@ -729,28 +727,26 @@ function forwardChecking(k, allSolutions, init) {
 		}
 		
 	} else {
-		
 		dvo(k);
 		
 		var variable = VARIABLES[k];
-		
 		var oldLabels = getLabels(k);
-		
 		var labelSize = variable.getLabelSize();
-		
-		for (var i = 0; i < labelSize; i++) {
-			var value = variable.label[i];
-			variable.updateValue(value);
-			variable.label = [value];
+
+		deepCopyArray(variable.getLabel()).forEach(function(e){
+			variable.updateValue(e);
+			variable.label = [e];
+			
 			if (propagateToNextVars(k)) {
 				var rest = forwardChecking(k+1, allSolutions, false);
 				if (rest != FAIL) {
 					return rest;
 				}
+				
 			}
 			
 			updateLabels(oldLabels);
-		}
+		});
 	}
 
 return FAIL;
@@ -1058,10 +1054,10 @@ function run (g, p) {
 	gVariables.nodesConsistency();
 	
 	gConstraints.arcsConsistency();
-	
-	/* For a reason I don't have the time to investigate, this causes chrome to fail (it cannot find a solution). */
+	/* TODO: For a reason I don't have the time to investigate, this causes chrome to fail (it cannot find a solution). */
 	//variableOrdering();
-	console.log(gVariables.toString());
+	
+	//console.log(gVariables.toString());
 	
 	return forwardChecking(0, false, true);
 }
@@ -1085,6 +1081,16 @@ var baseProblem = [[X,X,X,X,X,5,X,7,X],
 	   [3,X,X,5,X,X,X,X,X],
 	   [8,1,2,3,X,X,X,4,X],
 [X,7,X,2,X,X,X,X,X]];
+
+/*baseProblem = [[X,2,X,X,7,X,X,X,X], 
+                [X,X,X,X,X,3,X,X,9],
+                [6,X,X,8,X,X,1,X,X],
+                [X,X,9,X,X,X,7,X,X],
+                [X,5,X,X,X,X,X,6,X],
+                [X,X,4,X,X,X,8,X,X],
+                [X,X,3,X,X,9,X,X,4],
+                [8,X,X,5,X,X,X,X,X],
+                [X,X,X,X,6,X,X,2,X]];*/
 	   
 var currProb = bidimDeepCopy(baseProblem);
 
