@@ -1,3 +1,5 @@
+var DEBUG = false;
+
 var NBCONSTRAINTS = 0;
 
 function extend(subclass, superclass) {
@@ -698,6 +700,8 @@ function Constraints () {
  */
 function forwardChecking(k, allSolutions, init) {
 	
+    var retVal = FAIL;
+	
 	if (init) {
 		ITERATIONS = 0;
 		SOLUTIONS = [];
@@ -710,7 +714,9 @@ function forwardChecking(k, allSolutions, init) {
 	
 	ITERATIONS++;
 	
-	displayNbIterations(k);
+	if (DEBUG) {
+		displayNbIterations(k);
+	}
 	
 	if (k >= VARIABLES.length) {
 		var solution = {};
@@ -719,7 +725,9 @@ function forwardChecking(k, allSolutions, init) {
 			solution[v.getName()] = v.value;
 		}, this);
 		
-		console.log(displaySolution(solution));
+		if (DEBUG) {
+			console.log(displaySolution(solution));
+		}
 		SOLUTIONS.concat(solution);
 		
 		if (!allSolutions) {
@@ -740,7 +748,7 @@ function forwardChecking(k, allSolutions, init) {
 			if (propagateToNextVars(k)) {
 				var rest = forwardChecking(k+1, allSolutions, false);
 				if (rest != FAIL) {
-					return rest;
+					retVal = rest;
 				}
 				
 			}
@@ -749,7 +757,7 @@ function forwardChecking(k, allSolutions, init) {
 		});
 	}
 
-return FAIL;
+return retVal;
 }
 
 /** Sudoku */
@@ -1082,7 +1090,7 @@ var baseProblem = [[X,X,X,X,X,5,X,7,X],
 	   [8,1,2,3,X,X,X,4,X],
 [X,7,X,2,X,X,X,X,X]];
 
-/*baseProblem = [[X,2,X,X,7,X,X,X,X], 
+baseProblem = [[X,2,X,X,7,X,X,X,X], 
                 [X,X,X,X,X,3,X,X,9],
                 [6,X,X,8,X,X,1,X,X],
                 [X,X,9,X,X,X,7,X,X],
@@ -1090,7 +1098,7 @@ var baseProblem = [[X,X,X,X,X,5,X,7,X],
                 [X,X,4,X,X,X,8,X,X],
                 [X,X,3,X,X,9,X,X,4],
                 [8,X,X,5,X,X,X,X,X],
-                [X,X,X,X,6,X,X,2,X]];*/
+                [X,X,X,X,6,X,X,2,X]];
 	   
 var currProb = bidimDeepCopy(baseProblem);
 
