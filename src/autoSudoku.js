@@ -1045,7 +1045,7 @@ function Grid() {
 }
 
 function run (g, p) {
-	console.log("New problem");
+	console.log("Computing solution of problem " + p);
 	
 	PROBLEM = bidimDeepCopy(p);
 	
@@ -1089,16 +1089,6 @@ var baseProblem = [[X,X,X,X,X,5,X,7,X],
 	   [3,X,X,5,X,X,X,X,X],
 	   [8,1,2,3,X,X,X,4,X],
 [X,7,X,2,X,X,X,X,X]];
-
-/*baseProblem = [[X,2,X,X,7,X,X,X,X], 
-                [X,X,X,X,X,3,X,X,9],
-                [6,X,X,8,X,X,1,X,X],
-                [X,X,9,X,X,X,7,X,X],
-                [X,5,X,X,X,X,X,6,X],
-                [X,X,4,X,X,X,8,X,X],
-                [X,X,3,X,X,9,X,X,4],
-                [8,X,X,5,X,X,X,X,X],
-                [X,X,X,X,6,X,X,2,X]];*/
 	   
 var currProb = bidimDeepCopy(baseProblem);
 
@@ -1133,6 +1123,83 @@ function update(value, i, j) {
 	}
 }
 
+function generateRandomCells() {
+	var nbGivenCells = Math.floor(Math.random() * (45 - 17 + 1)) + 17;
+	currProb = bidimDeepCopy(empty);
+	
+	var genRows = [[], [], [], [], [], [], [], [], []];
+	var genCols = [[], [], [], [], [], [], [], [], []];
+	var genGrids = [[], [], [], [], [], [], [], [], []];
+	
+	var nbCells = 0;
+	
+	for (var i = 0; i < currProb.length; i++) {
+		for (var j = 0; j < currProb[0].length; j++) {
+			var v = 0;
+			var tries = 0;
+			do {
+				if (tries++ > 10000) {
+					return false;
+				}
+				
+				v = Math.floor(Math.random() * 9) + 1;
+			} while (genRows[i].indexOf(v) > -1 || genCols[j].indexOf(v) > -1 || genGrids[getPosSubGrid(j)].indexOf(v) > -1);
+			
+			
+			if (nbCells <= nbGivenCells) {
+				currProb[i][j] = v;
+				genRows[i].push(v);
+				genCols[j].push(v);
+				genGrids[getPosSubGrid(j)].push(v);
+				nbCells++;
+			}
+			
+		}
+		
+		if (nbCells > nbGivenCells) {
+			break;
+		}
+		
+	}
+	
+	return true;
+}
+
+function generateRandomSudoku() {
+	// 1. Get a valid sudoku
+    var redo = false;
+    do {
+    	redo = generateRandomCells();
+    } while (!redo);
+    
+    var grid = new Grid();
+    var res = run(grid, currProb);
+    
+    // 2. Fragment the solution to build a problem
+    currProb = bidimDeepCopy(empty);
+    var nbGivenCells = Math.floor(Math.random() * (35 - 17 + 1)) + 17;
+    var pickedCells = [];
+    for (var k = 0; k < 30; k++) {
+    	var i = 0;
+    	var j = 0;
+    	
+    	do {
+        	i = Math.floor(Math.random() * 9);
+        	j = Math.floor(Math.random() * 9);
+    	} while(pickedCells.indexOf(i + "" + j) > -1);
+    	
+    	pickedCells.push(i + "" + j);
+    	currProb[i][j] = grid.getVariable(i, j).getValue();
+   
+    }
+    
+	
+	
+	buildDivFrom(currProb, "array");
+}
+
+
+
 function buildDivFrom(from, type) {
 	var divContent = "<div id='game'><table><caption>AutoSudoku</caption><colgroup><col><col><col>" +
 					  "<colgroup><col><col><col>" + 
@@ -1163,6 +1230,7 @@ function buildDivFrom(from, type) {
 	divContent += "<button onclick='computeSudoku();'>Compute sudoku</button>";
 	divContent += "<button onclick='buildDivFrom(empty, \"array\"); currProb = bidimDeepCopy(empty);'>reset</button>";
 	divContent += "<button onclick='buildDivFrom(baseProblem, \"array\"); currProb = bidimDeepCopy(baseProblem);'>use original problem</button>";
+	divContent += "<button onclick='generateRandomSudoku();' >random problem</button>";
 	divContent += "<p id='info'></p>";
 	
 	div.innerHTML = divContent;
