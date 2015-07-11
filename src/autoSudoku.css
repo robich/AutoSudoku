@@ -12,8 +12,8 @@
     height:40px;
     display: inline-block;
     border: 1px solid black;
-	background-color: #fff;
-	color: #000;
+	  background-color: #fff;
+	  color: #000;
 }
 
 #autoSudoku  caption {
@@ -28,6 +28,10 @@
 }
 #autoSudoku td {
 	border: 0.1pt solid; height: 1.4em; width: 1.4em; text-align: center; padding: 0;
+}
+
+#autoSudoku button {
+	margin: 10px 5px 10px 5px;
 }
 
 #autoSudoku #info {

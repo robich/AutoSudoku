@@ -16,7 +16,7 @@ function deepCopyArray(array, dim) {
 	for (var i = 0; i < array.length; i++) {
 		output[i] = array[i];
 	}
-	
+
 	return output;
 }
 
@@ -31,7 +31,7 @@ function UndefinedArgumentException() {
 	this.toString = function() {
 		return "An argument was undefined";
 	}
-	
+
 }
 
 function UnknownOperator(message) {
@@ -39,7 +39,7 @@ function UnknownOperator(message) {
 	this.toString = function() {
 		return "Unknown operator: " + message;
 	}
-	
+
 }
 
 function OutOfBoundsException(message) {
@@ -47,7 +47,7 @@ function OutOfBoundsException(message) {
 	this.toString = function() {
 		return "Out of bounds: " + message;
 	}
-	
+
 }
 
 
@@ -64,37 +64,37 @@ function Variable (name, domain) {
 	this.value = "none";
 	this.domain = deepCopyArray(domain);
 	this.label = deepCopyArray(domain);
-	
-	
-	
+
+
+
 	this.toString = function() {
 		return "var : " + this.name + '\t value: ' + this.value + '\t domain = {' + this.domain + '} \t label = {' + this.label + '}';
 	}
-	
+
 	this.removeFromLabel = function(value) {
 		var index = this.label.indexOf(value);
 		if (index > -1) {
 			this.label.splice(index, 1);
 		}
 	}
-	
+
 	this.removeFromDomain = function(value) {
 		var index = this.domain.indexOf(value);
 		if (index > -1) {
 			this.domain.splice(index, 1);
 		}
 	}
-	
+
 	this.initLabel = function() {
 		this.label = deepCopyArray(this.domain);
 	}
-	
-	
-	
+
+
+
 	this.getValue = function() {
 		return this.value;
 	}
-	
+
 	this.updateValue = function(value) {
 		var index = this.domain.indexOf(value);
 		if (index == -1 && this.domain != "integers" && value != "none") {
@@ -103,33 +103,33 @@ function Variable (name, domain) {
 		}
 		this.value = value;
 	}
-	
+
 	this.getName = function() {
 		return this.name;
 	}
-	
+
 	this.getDomainSize = function() {
 		return this.domain.length;
 	}
-	
+
 	this.getLabelSize = function() {
 		return this.label.length;
 	}
-	
+
 	this.setLabel = function(lab) {
 		this.label = lab;
 	}
-	
-	
+
+
 	this.getDomain = function() {
 		return this.domain;
 	}
-	
+
 	this.getLabel = function() {
 		return this.label;
 	}
-	
-	
+
+
 }
 
 /**
@@ -137,21 +137,21 @@ function Variable (name, domain) {
  * 		a list of Variables
  */
 function Constraint (vars) {
-	
+
 	this.vars = vars;
-	
+
 	this.getVars = function() {
 		return this.vars;
 	}
-	
+
 	this.dimension = function() {
 		return 0;
 	}
-	
+
 	this.isValid = function(variable, value) {
 		return false;
 	}
-	
+
 	this.toString = function() {
 		return "Constraint: " + this.vars;
 	}
@@ -170,20 +170,20 @@ function UnaryConstraint (refVar, op, ref) {
 	this.ref = ref;
 	this.op = op;
 	this.refVar = refVar;
-	
+
 	this.dimension = function() {
 		return 1;
 	}
-	
+
 	this.isValid = function(variable, value) {
-		
+
 		NBCONSTRAINTS++;
-		
+
 		var savedValue = variable.getValue();
 		variable.updateValue(value);
-		
+
 		var valid = false;
-		
+
 		switch(this.op) {
 			case "<":
 				valid = this.refVar.getValue() < this.ref;
@@ -200,18 +200,18 @@ function UnaryConstraint (refVar, op, ref) {
 			default:
 				throw new UnknownOperator(this.op);
 		}
-		
+
 		variable.updateValue(savedValue);
-		
+
 		return valid;
 	}
-	
+
 	this.toString = function() {
 		return "\nConstraint: " + this.refVar.getName() + ' ' + this.op + ' ' + this.ref;
 	}
-	
-	
-	
+
+
+
 } extend(UnaryConstraint, Constraint);
 
 /**
@@ -227,20 +227,20 @@ function BinaryConstraint(refVar1, op, refVar2) {
 	this.refVar1 = refVar1;
 	this.op = op;
 	this.refVar2 = refVar2;
-	
+
 	this.dimension = function() {
 		return 2;
 	}
-	
+
 	this.isValid = function(variable, value) {
-		
+
 		NBCONSTRAINTS++;
-		
+
 		var savedValue = variable.getValue();
 		variable.updateValue(value);
-		
+
 		var valid = false;
-		
+
 		switch(this.op) {
 			case "!=":
 				valid = this.refVar1.getValue() != this.refVar2.getValue();
@@ -260,40 +260,40 @@ function BinaryConstraint(refVar1, op, refVar2) {
 			default:
 				throw new UnknownOperator(this.op);
 		}
-		
+
 		variable.updateValue(savedValue);
-		
+
 		return valid;
-		
+
 	}
-	
+
 	this.isPossible = function(variable) {
-		
+
 		if (variable.getDomain().length == 0) {
 			return false;
 		}
-		
+
 		var possible = false;
-		
+
 		variable.getDomain().forEach(function(d) {
 				if (this.isValid(variable, d)) {
 					possible = true;
 				}
-				
+
 			}, this);
-		
+
 		return possible;
 	}
-	
+
 	/**
 	 * Remove from refVar1 and refVar2's domains all impossible values.
-	 * 
+	 *
 	 * @return true iff a modification on the domains occured
 	 */
 	this.revise = function() {
-		
+
 		var modified = false;
-		
+
 		[ [this.refVar1, this.refVar2], [this.refVar2, this.refVar1] ].forEach(function(pair) {
 			deepCopyArray(pair[0].getDomain()).forEach(function(x) {
 					pair[0].updateValue(x);
@@ -301,46 +301,46 @@ function BinaryConstraint(refVar1, op, refVar2) {
 						pair[0].removeFromDomain(x);
 						modified = true;
 					}
-					
+
 				}, this);
 			pair[0].updateValue("none");
 		}, this);
-		
+
 		return modified;
-		
+
 	}
-	
+
 	/**
 	 * @return true iff the label of refVar1 or refVar2 stays non empty
 	 */
 	this.propagate = function(variable) {
-		
+
 		var var2 = this.refVar1;
-		
+
 		if (variable == this.refVar1) {
 			var2 = this.refVar2;
 		}
-		
+
 		deepCopyArray(var2.getLabel()).forEach(function(lab) {
-			
+
 				// Constraint satisfied?
 				if (!this.isValid(var2, lab)) {
 					var2.removeFromLabel(lab);
 				}
-				
+
 			}, this
 		);
-		
+
 		return var2.getLabelSize() > 0;
-		
-		
+
+
 	}
-	
-	
+
+
 	this.toString = function() {
 		return "\nBC: " + this.refVar1.getName() + ' ' + this.op + ' ' + this.refVar2.getName();
 	}
-	
+
 } extend(BinaryConstraint, Constraint);
 
 
@@ -349,7 +349,7 @@ function BinaryConstraint(refVar1, op, refVar2) {
 /**
  * Global variables definition.
  */
-	
+
 /**
  * List of all the variables.
  */
@@ -378,7 +378,7 @@ var SOLUTIONS = [];
 /**
  * Helper methods.
  */
-	
+
 function getStringFromDictionnary(dictionnary) {
 	var s = "";
 	for (var key in dictionnary) {
@@ -388,7 +388,7 @@ function getStringFromDictionnary(dictionnary) {
 }
 
 function bidimDeepCopy(array) {
-	var output = [[X,X,X,X,X,X,X,X,X], 
+	var output = [[X,X,X,X,X,X,X,X,X],
 	   [X,X,X,X,X,X,X,X,X],
 	   [X,X,X,X,X,X,X,X,X],
 	   [X,X,X,X,X,X,X,X,X],
@@ -397,13 +397,13 @@ function bidimDeepCopy(array) {
 	   [X,X,X,X,X,X,X,X,X],
 	   [X,X,X,X,X,X,X,X,X],
 	   [X,X,X,X,X,X,X,X,X]];
-	   
+
 	for (var i = 0; i < array.length; i++) {
 		for (var j = 0; j < array[0].length; j++) {
 			output[i][j] = array[i][j];
 		}
 	}
-	
+
 	return output;
 }
 
@@ -441,26 +441,26 @@ function variableOrdering() {
  * 			ignoring the first <code>from</code>.
  */
 function getIndexWithMinLabelSize(from) {
-	
+
 	if (from > VARIABLES.length) {
 		throw new OutOfBoundsException("from cannot be higher than the amount of variables.");
 	}
-	
-	
+
+
 	var minIndex = from;
-	
+
 	var minVal = VARIABLES[minIndex].getLabelSize();
-	
+
 	for (var i = from; i < VARIABLES.length; i++) {
 		if (VARIABLES[i].getLabelSize() < minVal) {
 			minIndex = i;
 			minVal = VARIABLES[i].getLabelSize();
 		}
-		
+
 	}
-	
+
 	return minIndex;
-	
+
 }
 
 /**
@@ -478,16 +478,16 @@ function dvo(k) {
 
 /**
  * Assert that all constraints on variable k and the previous ones are satisfied.
- * 
+ *
  * @param k current position in the variables
  * @return true iff consitent
  */
 function consistencyWithPreviousVars(k) {
-	
+
 	var consistent = true;
-	
+
 	CONSTRAINTS.forEach(function(c) {
-			// if k's name is in c 
+			// if k's name is in c
 			if (c.getVars().indexOf(VARIABLES[k].getName()) > -1 ) {
 				for (var i = 0; i < k; i++) {
 					// if i's name is also in c
@@ -501,35 +501,35 @@ function consistencyWithPreviousVars(k) {
 			}
 		}, this
 	);
-	
+
 	return consistent;
 }
 
 /**
  * Tries to lower label of other vars in any constraint with var whose index is k using BinaryConstraint.propagate().
- * 
+ *
  * @return true iff all constrainst are still satisfied
  */
 function propagateToNextVars(k) {
 	var satisfied = true;
-	
+
 	CONSTRAINTS.forEach(function(c) {
 			// if k's name is in c
 			if (c.getVars().indexOf(VARIABLES[k].getName()) > -1 ) {
 				for (var i = k+1; i < VARIABLES.length; i++) {
 					// if i's name is also in c
 					if (c.getVars().indexOf(VARIABLES[i].getName()) > -1 ) {
-						
+
 						if (!c.propagate(VARIABLES[k])) {
 							satisfied = false;
 						}
-						
+
 					}
 				}
 			}
 		}, this
 	);
-	
+
 	return satisfied;
 }
 
@@ -555,7 +555,7 @@ function getLabels(k) {
 	VARIABLES.forEach(function(v, i){
 		labels[v.getName()] = deepCopyArray(v.label);
 	});
-	
+
 
 	return labels;
 }
@@ -565,95 +565,95 @@ function updateLabels(labels) {
 		if (v.getName() in labels) {
 			v.setLabel(deepCopyArray(labels[v.getName()]));
 		}
-		
+
 	});
 }
 
 
 function Variables () {
-	
+
 	VARIABLES = [];
-	
+
 	this.getVariable = function(name) {
 		var output = "none";
-		
+
 		VARIABLES.forEach(function(v){
 			if (v.getName() == name) {
 				output = v;
 			}
-			
+
 		});
-		
+
 		return output;
 	}
-	
+
 	this.addVariable = function(variable) {
 		VARIABLES[VARIABLES.length] = variable;
 	}
-	
+
 	this.addVariables = function(varList) {
 		VARIABLES = VARIABLES.concat(varList);
 	}
-	
+
 	this.getAllVariables = function() {
 		return VARIABLES;
 	}
-	
+
 	this.getNbVariables = function() {
 		return VARIABLES.length;
 	}
-	
+
 	/**
 	 * Remove from the domain all values that violate unary constraints.
 	 */
 	this.nodesConsistency = function() {
 		CONSTRAINTS.forEach(function(c){
-			
+
 			// We want c to be unary.
 			if (c.dimension() == 1) {
 				deepCopyArray(c.refVar.domain).forEach(function(d) {
 					if (!c.isValid(c.refVar, d)) {
 						c.refVar.removeFromDomain(d);
 					}
-					
+
 				}, this);
-				
+
 			}
-			
+
 		}, this);
 	}
-	
+
 	this.toString = function() {
 		var s =  "Vars:\n";
 		var i = 1;
 		VARIABLES.forEach(function(v){
 			s += "\t" + i++ + " " +  v.toString() + "\n";
 		});
-		
+
 		return s;
 	}
-	
-	
-	
+
+
+
 }
 
 function Constraints () {
-	
+
 	CONSTRAINTS = [];
-	
+
 	this.addConstraint = function(c) {
 		CONSTRAINTS[CONSTRAINTS.length] = c;
 	}
-	
+
 	this.addConstraints = function(constraintsList) {
 		CONSTRAINTS = CONSTRAINTS.concat(constraintsList);
 	}
-	
-	
+
+
 	this.getNbConstraints = function() {
 		return CONSTRAINTS.length;
 	}
-	
+
 	/**
 	 * A value v in x_i's domain can be inconsistent with another x_j.
 	 * In that case, remove v from x_i's domain, and rerun method:
@@ -661,21 +661,21 @@ function Constraints () {
 	 */
 	this.arcsConsistency = function() {
 		var redo = false;
-		
+
 		CONSTRAINTS.forEach(function(c){
 			if (c.dimension() == 2 && c.revise()) {
 				redo = true;
 			}
-			
+
 		});
-		
+
 		if (redo) {
 			this.arcsConsistency();
 		}
-		
+
 	}
-	
-	
+
+
 	this.toString = function() {
 		var s = "Constraints:\n";
 		var i = 0;
@@ -683,60 +683,60 @@ function Constraints () {
 			i++;
 			s += "\t" + i + ". " + c + "\n";
 		});
-		
+
 		return s;
 	}
-	
-	
-	
+
+
+
 }
 
 /**
  * Forward checking algorithm + Dynamic Variable Ordering.
- * 
+ *
  * @param k depth of search, starts at 0
  * @param allSolutions boolean value that decides if we keep all possible solutions
  * @parem init boolean value deciding if we init global values ITERATIONS, SOLUTIONS
  */
 function forwardChecking(k, allSolutions, init) {
-	
+
     var retVal = FAIL;
-	
+
 	if (init) {
 		ITERATIONS = 0;
 		SOLUTIONS = [];
 		NBCONSTRAINTS = 0;
-		
+
 		VARIABLES.forEach(function(v){
 			v.initLabel();
 		});
 	}
-	
+
 	ITERATIONS++;
-	
+
 	if (DEBUG) {
 		displayNbIterations(k);
 	}
-	
+
 	if (k >= VARIABLES.length) {
 		var solution = {};
-		
+
 		VARIABLES.forEach(function(v){
 			solution[v.getName()] = v.value;
 		}, this);
-		
+
 		if (DEBUG) {
 			console.log(displaySolution(solution));
 		}
 		SOLUTIONS.concat(solution);
-		
+
 		if (!allSolutions) {
 			return SOLUTIONS;
 		}
-		
+
 	} else {
 		dvo(k);
-		
+
 		var variable = VARIABLES[k];
 		var oldLabels = getLabels(k);
 		var labelSize = variable.getLabelSize();
@@ -752,7 +752,7 @@ function forwardChecking(k, allSolutions, init) {
 					break;
 				}
 			}
-			
+
 			updateLabels(oldLabels);
 		}
 	}
@@ -764,7 +764,7 @@ return retVal;
 
 /**
  * Represents to empty cell.
- */ 
+ */
 var X = 0;
 
 /**
@@ -775,7 +775,7 @@ var DOMAIN = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 /**
  * The initial problem.
  */
-var PROBLEM = [[X,X,X,X,X,X,X,X,X], 
+var PROBLEM = [[X,X,X,X,X,X,X,X,X],
 [X,X,X,X,X,X,X,X,X],
 [X,X,X,X,X,X,X,X,X],
 [X,X,X,X,X,X,X,X,X],
@@ -816,11 +816,11 @@ function cellIsEmpty(s) {
 function Pair(x, y) {
 	this.x = x;
 	this.y = y;
-	
+
 	this.toString = function() {
 		return "(" + x + ", " + y + ")";
 	}
-	
+
 }
 
 
@@ -829,17 +829,17 @@ function Pair(x, y) {
  * @param posC position on column
  */
 function SubGrid(posL, posC) {
-	
+
 	this.posL = posL;
 	this.posC = posC;
 	this.notPossible = [];
 	this.subGrid = [];
-	
+
 	for (var i = 0 ; i < SUBGRID_SIZE; i++) {
 		this.subGrid.push([]);
 	}
-	
-	
+
+
 	// Create a variable for each cell.
 	for (var i = 0; i < SUBGRID_SIZE; i++) {
 		for (var j = 0; j < SUBGRID_SIZE; j++) {
@@ -848,13 +848,13 @@ function SubGrid(posL, posC) {
 			this.subGrid[i][j] = v;
 			gVariables.addVariable(v);
 		}
-		
+
 	}
-	
+
 	/**
 	 * Class methods.
 	 */
-	
+
 	this.addVariable = function(value, domain, posX, posY) {
 		if (DOMAIN.indexOf(value) > -1) {
 			this.subGrid[posX][posY].domain = [value];
@@ -863,22 +863,22 @@ function SubGrid(posL, posC) {
 			this.subGrid[posX][posY].domain = deepCopyArray(DOMAIN);
 		}
 	}
-	
+
 	this.getAbsoluteValue = function(x, y) {
 		var posX = this.posL * SUBGRID_SIZE + x;
 		var posY = this.posC * SUBGRID_SIZE + y;
         return new Pair(posX, posY);
 	}
-	
+
 	this.getValue = function(posX, posY) {
 		return this.subGrid[posX][posY].getValue();
 	}
-	
+
 	/**
 	 * Add the needed constraints for all x_i != x_j in subgrid.
 	 */
 	this.generateConstraints = function() {
-		
+
 		for (var i = 0; i < SUBGRID_SIZE; i++) {
 			for (var j = 0; j < SUBGRID_SIZE; j++) {
 				for (var k = 0; k < SUBGRID_SIZE; k++) {
@@ -894,22 +894,22 @@ function SubGrid(posL, posC) {
 			}
 		}
 	}
-	
+
 }
 
 
 function Grid() {
-	
+
 	this.init = function() {
 		GRID = [[], [], []];
-		
+
 		for (var i = 0; i < SUBGRID_SIZE; i++) {
 			for (var j = 0; j < SUBGRID_SIZE; j++) {
 				GRID[i][j] = new SubGrid(i, j);
 			}
 		}
-		
-		
+
+
 		var subGridCol = 0;
 		var subGridRow = 0;
 		for (var i = 0; i < NBELEM; i++) {
@@ -917,7 +917,7 @@ function Grid() {
 			if (i > 0 && i % SUBGRID_SIZE == 0) {
 				subGridRow++;
 			}
-			
+
 			for (var j = 0; j < NBELEM; j++) {
 				if (j > 0 && j % SUBGRID_SIZE == 0) {
 					subGridCol++;
@@ -930,12 +930,12 @@ function Grid() {
 			}
 		}
 	}
-	
+
 	this.toString = function() {
 		var subGridCol = 0;
 		var subGridRow = 0;
 		var line = "";
-		
+
 		for (var i = 0; i < NBELEM; i++) {
 			subGridCol = 0;
 			if (i > 0 && i % SUBGRID_SIZE == 0) {
@@ -946,24 +946,24 @@ function Grid() {
 				if (j > 0 && j % SUBGRID_SIZE == 0) {
 					subGridCol++;
 				}
-				
+
 				line += GRID[getPosSubGrid(i)][getPosSubGrid(j)].getValue(getPosInSubGrid(i), getPosInSubGrid(j)) + " " ;
 			}
-			
+
 			line += "\n";
 		}
-		
+
 		return line;
 	}
-	
+
 	this.getArray = function() {
 		var array = bidimDeepCopy(PROBLEM);
-		
+
 		var subGridCol = 0;
 		var subGridRow = 0;
 		var m = 0;
 		var n = 0;
-		
+
 		for (var i = 0; i < NBELEM; i++) {
 			subGridCol = 0;
 			if (i > 0 && i % SUBGRID_SIZE == 0) {
@@ -974,7 +974,7 @@ function Grid() {
 				if (j > 0 && j % SUBGRID_SIZE == 0) {
 					subGridCol++;
 				}
-				
+
 				var value = GRID[getPosSubGrid(i)][getPosSubGrid(j)].getValue(getPosInSubGrid(i), getPosInSubGrid(j));
 				if (!isNaN(value)) {
 					array[i][j] = value;
@@ -983,22 +983,22 @@ function Grid() {
 				}
 				n++;
 			}
-			
+
 			m++;
 		}
-		
+
 		return array;
 	}
-	
+
 	this.getVariable = function(posX, posY) {
 		return GRID[getPosSubGrid(posX)][getPosSubGrid(posY)].subGrid[getPosInSubGrid(posX)][getPosInSubGrid(posY)];
 	}
-	
+
 	/**
 	 * Generates all constraints on lines.
 	 */
 	this.generateLineConstraints = function() {
-		
+
 		for (var i = 0; i < NBELEM; i++) {
 			for (var j = 0; j < NBELEM; j++) {
 				for (var k = j+1; k < NBELEM; k++) {
@@ -1007,18 +1007,18 @@ function Grid() {
 					var c = new BinaryConstraint(v1, "!=", v2);
 					gConstraints.addConstraint(c);
 				}
-				
+
 			}
-			
+
 		}
-		
+
 	}
-	
+
 	/**
 	 * Generates all column constraints.
 	 */
 	this.generateColumnConstraints = function() {
-		
+
 		for (var i = 0; i < NBELEM; i++) {
 			for (var j = 0; j < NBELEM; j++) {
 				for (var k = j+1; k < NBELEM; k++) {
@@ -1027,46 +1027,46 @@ function Grid() {
 					var c = new BinaryConstraint(v1, "!=", v2);
 					gConstraints.addConstraint(c);
 				}
-				
+
 			}
-			
+
 		}
 	}
-	
+
 	this.generateSubGridConstraints = function() {
 		for (var i = 0; i < SUBGRID_SIZE; i++) {
 			for (var j = 0; j < SUBGRID_SIZE; j++) {
 				GRID[i][j].generateConstraints();
 			}
-			
+
 		}
-		
+
 	}
 }
 
 function run (g, p) {
 	console.log("Computing solution of problem " + p);
-	
+
 	PROBLEM = bidimDeepCopy(p);
-	
+
 	gVariables = new Variables();
 
 	gConstraints = new Constraints();
-	
+
 	g.init();
-	
+
 	g.generateLineConstraints();
 	g.generateColumnConstraints();
 	g.generateSubGridConstraints();
-	
+
 	gVariables.nodesConsistency();
-	
+
 	gConstraints.arcsConsistency();
 	/* TODO: For a reason I don't have the time to investigate, this causes chrome to fail (it cannot find a solution). */
 	//variableOrdering();
-	
+
 	//console.log(gVariables.toString());
-	
+
 	return forwardChecking(0, false, true);
 }
 
@@ -1080,7 +1080,7 @@ if (div == null) {
 	throw new Error(msg);
 }
 
-var baseProblem = [[X,X,X,X,X,5,X,7,X], 
+var baseProblem = [[X,X,X,X,X,5,X,7,X],
 	   [X,6,X,X,X,4,5,3,8],
 	   [X,X,X,X,X,9,X,X,2],
 	   [X,X,8,X,X,X,X,X,9],
@@ -1089,10 +1089,10 @@ var baseProblem = [[X,X,X,X,X,5,X,7,X],
 	   [3,X,X,5,X,X,X,X,X],
 	   [8,1,2,3,X,X,X,4,X],
 [X,7,X,2,X,X,X,X,X]];
-	   
+
 var currProb = bidimDeepCopy(baseProblem);
 
-var empty = [[X,X,X,X,X,X,X,X,X], 
+var empty = [[X,X,X,X,X,X,X,X,X],
 	   [X,X,X,X,X,X,X,X,X],
 	   [X,X,X,X,X,X,X,X,X],
 	   [X,X,X,X,X,X,X,X,X],
@@ -1101,7 +1101,7 @@ var empty = [[X,X,X,X,X,X,X,X,X],
 	   [X,X,X,X,X,X,X,X,X],
 	   [X,X,X,X,X,X,X,X,X],
 	   [X,X,X,X,X,X,X,X,X]];
-	   
+
 function isMSIE() {
 
         var ua = window.navigator.userAgent;
@@ -1126,13 +1126,13 @@ function update(value, i, j) {
 function generateRandomCells() {
 	var nbGivenCells = Math.floor(Math.random() * (45 - 17 + 1)) + 17;
 	currProb = bidimDeepCopy(empty);
-	
+
 	var genRows = [[], [], [], [], [], [], [], [], []];
 	var genCols = [[], [], [], [], [], [], [], [], []];
 	var genGrids = [[], [], [], [], [], [], [], [], []];
-	
+
 	var nbCells = 0;
-	
+
 	for (var i = 0; i < currProb.length; i++) {
 		for (var j = 0; j < currProb[0].length; j++) {
 			var v = 0;
@@ -1141,11 +1141,11 @@ function generateRandomCells() {
 				if (tries++ > 10000) {
 					return false;
 				}
-				
+
 				v = Math.floor(Math.random() * 9) + 1;
 			} while (genRows[i].indexOf(v) > -1 || genCols[j].indexOf(v) > -1 || genGrids[getPosSubGrid(j)].indexOf(v) > -1);
-			
-			
+
+
 			if (nbCells <= nbGivenCells) {
 				currProb[i][j] = v;
 				genRows[i].push(v);
@@ -1153,15 +1153,15 @@ function generateRandomCells() {
 				genGrids[getPosSubGrid(j)].push(v);
 				nbCells++;
 			}
-			
+
 		}
-		
+
 		if (nbCells > nbGivenCells) {
 			break;
 		}
-		
+
 	}
-	
+
 	return true;
 }
 
@@ -1171,10 +1171,10 @@ function generateRandomSudoku() {
     do {
     	redo = generateRandomCells();
     } while (!redo);
-    
+
     var grid = new Grid();
     var res = run(grid, currProb);
-    
+
     // 2. Fragment the solution to build a problem
     currProb = bidimDeepCopy(empty);
     var nbGivenCells = Math.floor(Math.random() * (35 - 17 + 1)) + 17;
@@ -1182,27 +1182,27 @@ function generateRandomSudoku() {
     for (var k = 0; k < 30; k++) {
     	var i = 0;
     	var j = 0;
-    	
+
     	do {
         	i = Math.floor(Math.random() * 9);
         	j = Math.floor(Math.random() * 9);
     	} while(pickedCells.indexOf(i + "" + j) > -1);
-    	
+
     	pickedCells.push(i + "" + j);
     	currProb[i][j] = grid.getVariable(i, j).getValue();
-   
+
     }
-    
-	
-	
+
+
+
 	buildDivFrom(currProb, "array");
 }
 
 
 
 function buildDivFrom(from, type) {
-	var divContent = "<div id='game'><table><caption>AutoSudoku</caption><colgroup><col><col><col>" +
-					  "<colgroup><col><col><col>" + 
+	var divContent = "<div id='game'><table><colgroup><col><col><col>" +
+					  "<colgroup><col><col><col>" +
 					  "<colgroup><col><col><col>";
 	for (var i = 0; i < 9; i++) {
 		if (i % 3 == 0) {
@@ -1227,23 +1227,23 @@ function buildDivFrom(from, type) {
 		divContent += "</tr>";
 	}
 	divContent += "</table></div>";
-	divContent += "<button onclick='computeSudoku();'>Compute sudoku</button>";
-	divContent += "<button onclick='buildDivFrom(empty, \"array\"); currProb = bidimDeepCopy(empty);'>reset</button>";
-	divContent += "<button onclick='buildDivFrom(baseProblem, \"array\"); currProb = bidimDeepCopy(baseProblem);'>use original problem</button>";
-	divContent += "<button onclick='generateRandomSudoku();' >random problem</button>";
+  divContent += "<button class=\"btn btn-success\" onclick='computeSudoku();'><span class=\"glyphicon glyphicon-ok\"></span> Solve sudoku</button>";
+	divContent += "<button class=\"btn btn-warning\" onclick='buildDivFrom(empty, \"array\"); currProb = bidimDeepCopy(empty);'><span class=\"glyphicon glyphicon-refresh\"></span> Reset</button>";
+	divContent += "<button class=\"btn btn-primary\" click='buildDivFrom(baseProblem, \"array\"); currProb = bidimDeepCopy(baseProblem);'>Use original problem</button>";
+	divContent += "<button class=\"btn btn-primary\" onclick='generateRandomSudoku();' >Random problem</button>";
 	divContent += "<p id='info'></p>";
-	
+
 	div.innerHTML = divContent;
-	
+
 	if (isMSIE()) {
 		for (var i = 0; i < 81; i++) {
 			document.querySelectorAll('#autoSudoku input')[i].style.width = "auto";
 			document.querySelectorAll('#autoSudoku input')[i].style.height = "auto";
 		}
 	}
-	
+
 }
-	   
+
 function computeSudoku() {
 	var t0 = performance.now();
 	var grid = new Grid();
@@ -1252,7 +1252,7 @@ function computeSudoku() {
 	var t1 = performance.now();
 	// Only keep 3 digits precision.
 	var elapsed = Math.floor((t1 - t0) * 1000) / 1000;
-	
+
 	if (res == FAIL) {
 		currProb = deepCopyArray(empty);
 		grid.init();
