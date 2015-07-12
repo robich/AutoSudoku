@@ -468,6 +468,7 @@ function getIndexWithMinLabelSize(from) {
  */
 function dvo(k) {
 	var indexMin = getIndexWithMinLabelSize(k);
+	indexMin = parseInt(indexMin);
 	if (indexMin != k) {
 		// swap variables k and indexMin.
 		var tmp = VARIABLES[k];
@@ -1227,9 +1228,9 @@ function buildDivFrom(from, type) {
 		divContent += "</tr>";
 	}
 	divContent += "</table></div>";
-  divContent += "<button class=\"btn btn-success\" onclick='computeSudoku();'><span class=\"glyphicon glyphicon-ok\"></span> Solve sudoku</button>";
+	divContent += "<button class=\"btn btn-success\" onclick='computeSudoku();'><span class=\"glyphicon glyphicon-ok\"></span> Solve sudoku</button>";
 	divContent += "<button class=\"btn btn-warning\" onclick='buildDivFrom(empty, \"array\"); currProb = bidimDeepCopy(empty);'><span class=\"glyphicon glyphicon-refresh\"></span> Reset</button>";
-	divContent += "<button class=\"btn btn-primary\" click='buildDivFrom(baseProblem, \"array\"); currProb = bidimDeepCopy(baseProblem);'>Use original problem</button>";
+	divContent += "<button class=\"btn btn-primary\" onclick='buildDivFrom(baseProblem, \"array\"); currProb = bidimDeepCopy(baseProblem);'>Use original problem</button>";
 	divContent += "<button class=\"btn btn-primary\" onclick='generateRandomSudoku();' >Random problem</button>";
 	divContent += "<p id='info'></p>";
 
